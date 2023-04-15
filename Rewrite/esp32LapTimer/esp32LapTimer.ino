@@ -44,7 +44,8 @@ enum States {
 volatile States currentState = States::Ready;
 volatile uint32_t startTime;
 volatile uint32_t timer;
-volatile uint32_t last_timer;
+volatile uint32_t timer_delay;
+volatile uint32_t last_timer_delay;
 
 void ready() {
 	currentState = States::Ready;
@@ -54,7 +55,8 @@ void ready() {
 		digitalWrite(ledLane[i], LOW); // turn off led
 		attachInterruptArg(limitSwitchPins[i], &LimitSwitch_ISR, &idx, FALLING); // enable limit switch trigger
 	}
-	last_timer = 0;
+	timer_delay = 0;
+	last_timer_delay = 0;
 	timer = 0;
 	renderTimer();
 }
@@ -136,9 +138,10 @@ void loop() {
 		return;
 
 	timer = millis() - startTime;
-	if (timer - last_timer >= Timer_Render_Delay)
+	timer_delay /= Timer_Render_Delay;
+	if (timer_delay - last_timer_delay > 0)
 	{
-		last_timer = timer;
+		last_timer_delay = timer_delay;
 		renderTimer();
 	}
 }
