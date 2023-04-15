@@ -132,7 +132,7 @@ void setup() {
 }
 
 void loop() {
-	if (currentState != States::Started)
+	if (currentState != States::Started && currentState != States::FinalLap)
 		return;
 
 	timer = millis() - startTime;
