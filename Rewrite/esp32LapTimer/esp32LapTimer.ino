@@ -138,7 +138,7 @@ void loop() {
 		return;
 
 	timer = millis() - startTime;
-	timer_delay /= Timer_Render_Delay;
+	timer_delay = timer / Timer_Render_Delay;
 	if (timer_delay - last_timer_delay > 0)
 	{
 		last_timer_delay = timer_delay;
