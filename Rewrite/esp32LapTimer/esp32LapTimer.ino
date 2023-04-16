@@ -15,8 +15,9 @@
  // Lesser General Public License for more details
  //------------------------------------------------------------------
 
+#include <ShiftRegister74HC595.h>
+
 #define TotalLanes 3
-#define Timer_Render_Delay 10 // 10 milisecond
 
 /*
 1000 milisecond = 1 second
@@ -24,6 +25,45 @@
 1 ms = 0.001 s
 10 ms = 0.01 s
 */
+#define Timer_Render_Delay 10 // 10 milisecond
+
+#define Timer_Digit 4 // 4 digit
+
+//Pin connected to latch pin (ST_CP) of 74HC595
+const int latchPin = 8;
+//Pin connected to clock pin (SH_CP) of 74HC595
+const int clockPin = 12;
+//Pin connected to Data in (DS) of 74HC595
+const int dataPin = 11;
+
+uint8_t segmentCodes[Timer_Digit] = { 0, 0, 0, 0 };
+ShiftRegister74HC595<Timer_Digit> sr(dataPin, clockPin, latchPin);
+
+uint8_t numbersCode[10] = {
+	B11000000, //0
+	B11111001, //1
+	B10100100, //2
+	B10110000, //3
+	B10011001, //4
+	B10010010, //5
+	B10000010, //6
+	B11111000, //7
+	B10000000, //8
+	B10010000 //9
+};
+uint8_t inverseNumbersCode[10] = {
+	B11000000, //0
+	B11111001, //1
+	B11100100, //2
+	B10110000, //3
+	B10011001, //4
+	B10010010, //5
+	B10000010, //6
+	B11111000, //7
+	B10000000, //8
+	B10010000 //9
+};
+
 
 // 3 Lane Limit Swich
 volatile uint8_t laneIndex[TotalLanes] = { 0, 1, 2 };
@@ -119,7 +159,16 @@ void IRAM_ATTR FinalLapButton_ISR() {
 
 // logic Render Timer Display
 void renderTimer() {
-	
+	for (uint8_t i = 0; i < Timer_Digit; i++)
+	{
+		uint32_t div = pow10(i);
+		uint8_t digitNumber = (timer / div) % 10;
+		if (i != 2)
+			segmentCodes[i] = numbersCode[digitNumber];
+		else
+			segmentCodes[i] = inverseNumbersCode[digitNumber];
+	}
+	sr.setAll(segmentCodes);
 }
 
 void setup() {
