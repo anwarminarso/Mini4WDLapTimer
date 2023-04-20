@@ -20,6 +20,10 @@
 #define TotalLanes 3
 
 
+// Use Inverse Number on 3rd Digit
+// Comment this if not use inverse number on 3rd digit
+#define USE_INVERSE_NUMBER_3  
+
 /*
 1000 milisecond = 1 second
 1000 ms == 1 s
@@ -113,7 +117,7 @@ void ready() {
 	currentState = States::Ready;
 	for (int8_t i = 0; i < TotalLanes + 2; i++)
 	{
-		pinMode(inputPins[0], INPUT_PULLUP);
+		digitalWrite(ledLane[i], LOW); // turn on led
 	}
 	timer_delay = 0;
 	last_timer_delay = 0;
@@ -159,26 +163,33 @@ void renderTimer() {
 		uint32_t div = pow10(i) * 10;
 		uint8_t digitNumber = (timer / div) % 10;
 		uint8_t invIdx = Timer_Digit - i - 1;
-
-		if (i != 1)
-		{
+#ifdef USE_INVERSE_NUMBER_3
+		if (i != 1) {
 			segmentCodes[invIdx] = numbersCode[digitNumber];
 			if (i == 2 && flipflop)
 				segmentCodes[invIdx] &= ~(1 << 7);
 		}
-		else
-		{
+		else {
 			segmentCodes[invIdx] = inverseNumbersCode[digitNumber];
 			if (flipflop)
 				segmentCodes[invIdx] &= ~(1 << 6);
 		}
+#else
+		segmentCodes[invIdx] = numbersCode[digitNumber];
+		if (i == 2 && flipflop)
+			segmentCodes[invIdx] &= ~(1 << 7);
+#endif
 	}
 	sr.setAll(segmentCodes);
 }
 
 void renderFinishedTimer() {
-	segmentCodes[1] &= ~(1 << 6);
-	segmentCodes[2] &= ~(1 << 7);
+#ifdef USE_INVERSE_NUMBER_3
+	segmentCodes[2] &= ~(1 << 6);
+	segmentCodes[1] &= ~(1 << 7);
+#else
+	segmentCodes[1] &= ~(1 << 7);
+#endif
 	sr.setAll(segmentCodes);
 }
 void setup() {
@@ -230,6 +241,7 @@ void loop() {
 						if (digitalRead(inputPins[i]) == LOW)
 						{
 							finished(i - 2);
+							renderFinishedTimer();
 							break;
 						}
 					}
