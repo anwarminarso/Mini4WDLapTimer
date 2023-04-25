@@ -1,7 +1,7 @@
 //------------------------------------------------------------------
-// Copyright(c) 2022 Anwar Minarso (anwar.minarso@gmail.com)
+// Copyright(c) 2023 Anwar Minarso (anwar.minarso@gmail.com)
 // https://github.com/anwarminarso/
-// This file is part of the ESP32+ PLC.
+// This file is part of esp32LapTimer project
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
